@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8080"
+    volumes:
+      - ./:/app
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    volumes:
+      - D:\works\LearnRedis\MyData\redis_volume_data:/data
+    ports:
+      - "6379:6379"
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "LikeAndSubscribe1!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - "D:/DockerVolumes/SqlData/data:/var/opt/mssql/data"
+      - "D:/DockerVolumes/SqlData/secrets:/var/opt/mssql/secrets"
+    restart: always

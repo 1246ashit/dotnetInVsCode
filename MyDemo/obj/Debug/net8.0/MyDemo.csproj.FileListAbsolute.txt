@@ -98,3 +98,4 @@ D:\works\dotnet\dotnetInVsCode\MyDemo\obj\Debug\net8.0\refint\MyDemo.dll
 D:\works\dotnet\dotnetInVsCode\MyDemo\obj\Debug\net8.0\MyDemo.pdb
 D:\works\dotnet\dotnetInVsCode\MyDemo\obj\Debug\net8.0\MyDemo.genruntimeconfig.cache
 D:\works\dotnet\dotnetInVsCode\MyDemo\obj\Debug\net8.0\ref\MyDemo.dll
+D:\works\dotnet\dotnetInVsCode\MyDemo\obj\Debug\net8.0\MyDemo.sourcelink.json

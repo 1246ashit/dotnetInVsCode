@@ -69,7 +69,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 //redis
-var rds = new CSRedisClient("127.0.0.1:6379");
+var rds = new CSRedisClient("redis:6379");
 RedisHelper.Initialization(rds);
 builder.Services.AddSingleton<CSRedisClient>(rds);
 //
