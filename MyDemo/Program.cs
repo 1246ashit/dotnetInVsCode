@@ -7,11 +7,11 @@ using MyDemo.Enties;
 using CSRedis;
 using Microsoft.Extensions.DependencyInjection;
 
-var myReactAppOrigins = "_myReactAppOrigins";
 var builder = WebApplication.CreateBuilder(args);
 var _config = builder.Configuration;
 
 //cros
+var myReactAppOrigins = "_myReactAppOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myReactAppOrigins,
@@ -33,8 +33,6 @@ builder.Services.AddOptions<JwtOptions>()
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 //
-
-
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -69,7 +67,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 //redis
-var rds = new CSRedisClient("redis:6379");
+var rds = new CSRedisClient("localhost:6379");
 RedisHelper.Initialization(rds);
 builder.Services.AddSingleton<CSRedisClient>(rds);
 //
@@ -78,9 +76,13 @@ builder.Services.AddSingleton<CSRedisClient>(rds);
 builder.Services.AddScoped<IDbconnection,Dbconnection>();
 builder.Services.AddScoped<IMySqlService,MySqlService>();
 builder.Services.AddScoped<IUserService,UserService>();
+builder.Services.AddHttpClient();
+///github圖庫設定
+var gitHubSettings = builder.Configuration.GetSection("GitHubSettings").Get<GitSettingsEntity>()?? throw new InvalidOperationException("GitHub settings must be configured.");
+builder.Services.AddSingleton(gitHubSettings);
 //
 
-// 註冊了控制器
+// 控制器
 builder.Services.AddControllers();
 //
 

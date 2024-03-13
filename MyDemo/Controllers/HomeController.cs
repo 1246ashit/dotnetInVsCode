@@ -16,11 +16,16 @@ public class HomeController : ControllerBase
     private readonly JwtService _jwtService;
     private readonly CSRedisClient _rds;
     private readonly IUserService _userService;
-    public HomeController(IUserService userService,JwtService jwtService,IMySqlService MySqlService,CSRedisClient rds){
+    private readonly HttpClient _httpClient;
+    private readonly GitSettingsEntity _gitHubSettings;
+    public HomeController(GitSettingsEntity gitHubSettings,HttpClient httpClient,IUserService userService, JwtService jwtService, IMySqlService MySqlService, CSRedisClient rds)
+    {
         _MySqlService = MySqlService;
         _jwtService = jwtService;
-        _rds=rds;
-        _userService=userService;
+        _rds = rds;
+        _userService = userService;
+        _httpClient = httpClient;
+        _gitHubSettings=gitHubSettings;
     }
 
     [AllowAnonymous]
@@ -39,54 +44,74 @@ public class HomeController : ControllerBase
         }
     }
 
-
+    [AllowAnonymous]
     [HttpGet("GetAll")]
-    public async Task<ActionResult<List<SuperHeroEntity>>>GetAll(){
-        var heros=await _MySqlService.GetData();
+    public async Task<ActionResult<List<SuperHeroEntity>>> GetAll()
+    {
+        var heros = await _MySqlService.GetData();
 
         return Ok(heros);
     }
     [AllowAnonymous]
     [HttpPost("CeateNewHero")]
-    public async Task<ActionResult<List<SuperHeroEntity>>>CeateNewHero([FromBody]SuperHeroEntity superHero){
-        var affectedRows=await _MySqlService.AddHero(superHero);
-        if (affectedRows==1){
-            
+    public async Task<ActionResult<List<SuperHeroEntity>>> CeateNewHero(SuperHeroEntity superHero)
+    {
+        var affectedRows = await _MySqlService.AddHero(superHero);
+        if (affectedRows == 1)
+        {
+
             return Ok();
         }
-        else{
+        else
+        {
             return BadRequest("無效操作的描述");
         }
     }
 
-
-    public record class TokenDto(string Token);
-    [AllowAnonymous] // 允許匿名登入
-    [HttpPost("LoginTokenDto")]
-    public ActionResult<string> LoginTokenDto([FromBody] LoginEntity login)
+    
+    [AllowAnonymous]
+    [HttpPost("DeleteHero")]
+    public async Task<ActionResult> DeleteHero([FromBody] HeroId heroId)
     {
-        // todo: 驗證帳號密碼
+        var affectedRows = await _MySqlService.DeleteHero(heroId.Id);
+        if (affectedRows == 1)
+        {
 
-        var token = _jwtService.GenerateToken(login.Email); // 依照帳號產生 jwt
-
-        return Ok(new TokenDto(token));
-    }
-
-    [HttpGet("Profile")]
-    public ActionResult<string> Profile()
-    {
-        // 從 jwt 取得使用者名稱
-        var userName = User.Identity?.Name;
-        return Ok(userName);
+            return Ok(new { message = "success" });
+        }
+        else
+        {
+            return BadRequest(new { error = "無效操作的描述" });
+        }
     }
 
     [AllowAnonymous]
     [HttpGet("GetfromRedis")]
-    public ActionResult<string> GetfromRedis()
+    public async Task<IActionResult> GetfromRedis()
     {
         // 從 jwt 取得使用者名稱
         _rds.Set("name", "臭雞雞");
-        var name=_rds.Get("name");
+        var name = _rds.Get("name");
         return Ok(name);
+    
     }
+    
+    [AllowAnonymous]
+    [HttpGet("GetImage")]
+    public async Task<IActionResult> GetImage(string imagePath)
+    {
+        string token = _gitHubSettings.Token;//GitHub token
+        string baseUrl = _gitHubSettings.BareURL;
+        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", token);
+            
+        var response = await _httpClient.GetAsync(baseUrl + imagePath);
+        if (response.IsSuccessStatusCode)
+        {
+            var imageStream = await response.Content.ReadAsStreamAsync();
+            return File(imageStream, "image/jpeg"); //根據實際圖片類型調整MIME類型
+        }
+        return NotFound();
+    
+    }
+
 }

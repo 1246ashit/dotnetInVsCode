@@ -3,17 +3,20 @@ using MyDemo.Enties;
 using Dapper;
 namespace MyDemo.Services;
 
-public interface IMySqlService{
+public interface IMySqlService
+{
     Task<List<SuperHeroEntity>> GetData();
     Task<int> AddHero(SuperHeroEntity superHero);
+    Task<int> DeleteHero(int Id);
 }
-public class MySqlService:IMySqlService
+public class MySqlService : IMySqlService
 {
     private readonly IConfiguration _config;
     private readonly IDbconnection _Dbconnection;
-    public MySqlService( IConfiguration config ,IDbconnection Dbconnection){
-        _config=config;
-        _Dbconnection=Dbconnection;
+    public MySqlService(IConfiguration config, IDbconnection Dbconnection)
+    {
+        _config = config;
+        _Dbconnection = Dbconnection;
     }
 
     public async Task<List<SuperHeroEntity>> GetData()
@@ -27,7 +30,18 @@ public class MySqlService:IMySqlService
     {
         await using var connection = await _Dbconnection.GetConnectionAsync();
         var sql = "INSERT INTO SuperHeros (FirstName, LastName,Power,Place) VALUES (@FirstName, @LastName, @Power,@Place);";
-        var affectedRows = await connection.ExecuteAsync(sql, new { superHero.FirstName, superHero.LastName, superHero.Power,superHero.Place});
+        var affectedRows = await connection.ExecuteAsync(sql, new { superHero.FirstName, superHero.LastName, superHero.Power, superHero.Place });
         return affectedRows;
     }
+
+    public async Task<int> DeleteHero(int Id)
+    {
+        await using var connection = await _Dbconnection.GetConnectionAsync();
+        var sql = "DELETE FROM SuperHeros WHERE Id = @Id;";
+        var affectedRows = await connection.ExecuteAsync(sql, new { Id });
+        return affectedRows;
+    }
+
+
+
 }
