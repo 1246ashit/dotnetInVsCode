@@ -12,20 +12,22 @@ namespace MyDemo.Controllers;
 [Route("api/[controller]")]
 public class HomeController : ControllerBase
 {
-    private readonly IMySqlService _MySqlService;
     private readonly JwtService _jwtService;
     private readonly CSRedisClient _rds;
-    private readonly IUserService _userService;
     private readonly HttpClient _httpClient;
     private readonly GitSettingsEntity _gitHubSettings;
-    public HomeController(GitSettingsEntity gitHubSettings,HttpClient httpClient,IUserService userService, JwtService jwtService, IMySqlService MySqlService, CSRedisClient rds)
+    private readonly IMySqlService _MySqlService;
+    private readonly IUserService _userService;
+    private readonly IGitHubFile _gitHubFile;
+    public HomeController(IGitHubFile gitHubFile,GitSettingsEntity gitHubSettings, HttpClient httpClient, IUserService userService, JwtService jwtService, IMySqlService MySqlService, CSRedisClient rds)
     {
         _MySqlService = MySqlService;
         _jwtService = jwtService;
         _rds = rds;
         _userService = userService;
         _httpClient = httpClient;
-        _gitHubSettings=gitHubSettings;
+        _gitHubSettings = gitHubSettings;
+        _gitHubFile=gitHubFile;
     }
 
     [AllowAnonymous]
@@ -68,7 +70,7 @@ public class HomeController : ControllerBase
         }
     }
 
-    
+
     [AllowAnonymous]
     [HttpPost("DeleteHero")]
     public async Task<ActionResult> DeleteHero([FromBody] HeroId heroId)
@@ -91,27 +93,39 @@ public class HomeController : ControllerBase
     {
         // 從 jwt 取得使用者名稱
         _rds.Set("name", "臭雞雞");
-        var name = _rds.Get("name");
+        var name = await _rds.GetAsync("name");
         return Ok(name);
-    
+
     }
-    
+
+
     [AllowAnonymous]
     [HttpGet("GetImage")]
     public async Task<IActionResult> GetImage(string imagePath)
     {
-        string token = _gitHubSettings.Token;//GitHub token
-        string baseUrl = _gitHubSettings.BareURL;
-        _httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", token);
-            
-        var response = await _httpClient.GetAsync(baseUrl + imagePath);
-        if (response.IsSuccessStatusCode)
+        var imageStream = await _gitHubFile.GetFile(imagePath);
+        if (imageStream != null)
         {
-            var imageStream = await response.Content.ReadAsStreamAsync();
-            return File(imageStream, "image/jpeg"); //根據實際圖片類型調整MIME類型
+            return File(imageStream, "image/jpeg"); // 根據實際圖片類型調整 MIME 類型
         }
         return NotFound();
-    
     }
 
+    [AllowAnonymous]
+    [HttpPost("PostImage")]
+    public async Task<IActionResult> PostImage(IFormFile file){
+        if (file.Length > 0)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                var content = memoryStream.ToArray();
+                var response = await _gitHubFile.UploadFile(content, file.FileName);
+                return Ok(response);
+            }
+        }
+        return BadRequest("No file received");
+    }
 }
+
+

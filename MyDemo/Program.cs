@@ -73,10 +73,11 @@ builder.Services.AddSingleton<CSRedisClient>(rds);
 //
 
 // 依賴注入
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<IDbconnection,Dbconnection>();
 builder.Services.AddScoped<IMySqlService,MySqlService>();
 builder.Services.AddScoped<IUserService,UserService>();
-builder.Services.AddHttpClient();
+builder.Services.AddScoped<IGitHubFile,GitHubFile>();
 ///github圖庫設定
 var gitHubSettings = builder.Configuration.GetSection("GitHubSettings").Get<GitSettingsEntity>()?? throw new InvalidOperationException("GitHub settings must be configured.");
 builder.Services.AddSingleton(gitHubSettings);

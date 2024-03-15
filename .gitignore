@@ -9,3 +9,15 @@ MyDemo/obj/Debug/net8.0/ref/MyDemo.dll
 MyDemo/obj/Debug/net8.0/refint/MyDemo.dll
 MyDemo/bin/Debug/net8.0/MyDemo.pdb
 MyDemo/bin/Debug/net8.0/appsettings.json
+MyDemo/bin/Debug/net8.0/Octokit.dll
+MyDemo/bin/Debug/net8.0/RestSharp.dll
+MyDemo/bin/Debug/net8.0/SixLabors.ImageSharp.dll
+MyDemo/bin/Debug/net8.0/Telegram.Bot.dll
+MyDemo/obj/project.nuget.cache
+MyDemo/obj/Debug/net8.0/MyDemo.assets.cache
+MyDemo/obj/Debug/net8.0/MyDemo.csproj.AssemblyReference.cache
+MyDemo/obj/Debug/net8.0/MyDemo.csproj.CoreCompileInputs.cache
+MyDemo/obj/Debug/net8.0/MyDemo.csproj.FileListAbsolute.txt
+MyDemo/MyDemo.csproj
+MyDemo/obj/MyDemo.csproj.nuget.g.props
+MyDemo/obj/MyDemo.csproj.nuget.g.targets
