@@ -20,7 +20,7 @@ public class GitHubFile : IGitHubFile
     {
         _gitHubSettings = gitHubSettings;
         _clientPost = new RestClient(_gitHubSettings.UploadUrl);
-        _clientGet = new RestClient($"https://raw.githubusercontent.com/1246ashit/newCSONline/main/");
+        _clientGet = new RestClient($"{_gitHubSettings.BareURL}/{_gitHubSettings.User}/{_gitHubSettings.Repo}/main/");
     }
     public async Task<Stream> GetFile(string fileName)
     {
