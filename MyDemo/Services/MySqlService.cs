@@ -8,6 +8,7 @@ public interface IMySqlService
     Task<List<SuperHeroEntity>> GetData();
     Task<int> AddHero(SuperHeroEntity superHero);
     Task<int> DeleteHero(int Id);
+    Task<List<UserImage>> GetImagePath(int UID);
 }
 public class MySqlService : IMySqlService
 {
@@ -34,12 +35,20 @@ public class MySqlService : IMySqlService
         return affectedRows;
     }
 
-    public async Task<int> DeleteHero(int Id)
+    public async Task<int> DeleteHero(int ID)
     {
         await using var connection = await _Dbconnection.GetConnectionAsync();
         var sql = "DELETE FROM SuperHeros WHERE Id = @Id;";
-        var affectedRows = await connection.ExecuteAsync(sql, new { Id });
+        var affectedRows = await connection.ExecuteAsync(sql, new { ID });
         return affectedRows;
+    }
+
+    public async Task<List<UserImage>> GetImagePath(int UID)
+    {
+        await using var connection = await _Dbconnection.GetConnectionAsync();
+        var sql = "SELECT * FROM UserImage WHERE UID = @UID;";
+        var result = await connection.QueryAsync<UserImage>(sql, new { UID });
+        return result.ToList();
     }
 
 

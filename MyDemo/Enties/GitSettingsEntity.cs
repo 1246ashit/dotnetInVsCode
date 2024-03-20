@@ -10,3 +10,14 @@ public class GitSettingsEntity
     
 }
 
+public class FileResult
+{
+    public Stream FileStream { get; set; }= null!;
+    public string Sha { get; set; }= null!;
+}
+
+public class UserImage{
+    public string ImgPath { get; set; }= null!;
+    public DateTime CreateDate{ get; set; }
+}
+
